@@ -87,7 +87,7 @@ auto gain_debug_privileges() -> bool {
     return adj;
 }
 
-auto inject(Process_t *proc, wchar_t *path) -> bool {
+auto inject_loadlibrary(Process_t *proc, wchar_t *path) -> bool {
 
     // Lower Scope Lambda to fix potential memory leaks when leaving HANDLEs open
     auto release_memory = [](HANDLE handle, LPVOID addressOfAlloc) -> void {
@@ -160,6 +160,7 @@ auto wmain(int argc, wchar_t *argv[]) -> int {
     // @info
     // These values are hardcoded. We dont really want that, but for the time being it gets the job done.
     // -Kiwii
+    
     if(argc == 2 && wcscmp(argv[1], L"-h")) {
 
         std::cout << "Syren.exe [-h]: Prints Additional Information" << std::endl;
@@ -200,7 +201,7 @@ auto wmain(int argc, wchar_t *argv[]) -> int {
         exit(ERROR_PROCESS_INVALID);
     }
 
-    if( !inject(&proc, dll_path)) {
+    if( !inject_loadlibrary(&proc, dll_path)) {
 
         exit(ERROR_FAILED_INJECTION);
     }
