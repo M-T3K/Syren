@@ -3,7 +3,7 @@
 
 Welcome to Syren.
 -----------------------------------------------------------------------------------------
-Syren is a CLI General Purpose Dynamic Link Library (Dll) Injector programmed from scratch in C++. Keep in mind this project uses several **Experimental** C++ features, such as the C++17 filesystem from **experimental/filesystem**. Make sure you have these features installed in Visual Studio. A UI version will probably be developed in the future. However, I believe that functionality should come before beauty, and thus the UI will only be developed once the rest of the features are done.
+Syren is a CLI General Purpose Dynamic Link Library (Dll) Injector programmed from scratch in C++. Keep in mind this project uses several **Experimental** C++ features, such as the C++2a filesystem from **experimental/filesystem**. Make sure you have these features installed in Visual Studio. A UI version will probably be developed in the future. However, I believe that functionality should come before beauty, and thus the UI will only be developed once the rest of the features are done.
 
 ## List of Features
 

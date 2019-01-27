@@ -7,6 +7,8 @@ Syren/Syren/Release/
 Syren/Syren/Debug/
 Syren/DDllTest/x64
 Syren/DDllTest/Win32
+.vs/
+.vscode/
 *.dll
 *.exe
 *.db
