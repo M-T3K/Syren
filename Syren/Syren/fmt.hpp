@@ -42,7 +42,6 @@ namespace fmt {
         va_end(va);
 
         f << msg;
-        f.close();
 
         return strlen(msg);
     }
@@ -74,7 +73,6 @@ namespace fmt {
         va_end(va);
 
         f << msg << std::endl;
-        f.close();
 
         return strlen(msg);
     }

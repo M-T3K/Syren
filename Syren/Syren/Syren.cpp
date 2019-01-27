@@ -56,18 +56,18 @@ auto validate_process(Process_t *proc) -> bool {
     if( snap == INVALID_HANDLE_VALUE) {
         
         printf("Handle is Invalid...\n");
-        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(__DEFAULT_DUMP_FILE, "Couldn't get a Handle to the Snapshot of processes.");
+        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "Couldn't get a Handle to the Snapshot of processes.");
         return false;
     }
 
-    if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(__DEFAULT_DUMP_FILE, "Beginning Lookup for Process '%ws' using HANDLE 0x%p.", proc->name, snap);
+    if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "Beginning Lookup for Process '%ws' using HANDLE 0x%p.", proc->name, snap);
 
     if( Process32FirstW(snap, &entry)) {
 
         while(Process32NextW(snap, &entry)){
             
             if( Flags & InjectionFlags_Verbose) printf("Process(%ws)<%d>\n", entry.szExeFile, entry.th32ProcessID);
-            if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(__DEFAULT_DUMP_FILE, "Current Process :: <exe='%ws', id='%d'>.", entry.szExeFile, entry.th32ProcessID);
+            if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "Current Process :: <exe='%ws', id='%d'>.", entry.szExeFile, entry.th32ProcessID);
 
             if( wcscmp(entry.szExeFile, proc->name) == 0) {
 
@@ -77,7 +77,7 @@ auto validate_process(Process_t *proc) -> bool {
                 // @Check if there an error when handle is nullptr. I assume printf is capable of handling all these things.
                 printf("Found Process(%ws)<%d> (with Handle 0x%p).\n", proc->name, proc->id, proc->pHandle);
 
-                if(proc->pHandle == nullptr && (Flags & InjectionFlags_DumpFile)) fmt::fprintLn(__DEFAULT_DUMP_FILE, "Found Process '%ws'<id='%d'> but created HANDLE was invalid.", proc->name, proc->id);
+                if(proc->pHandle == nullptr && (Flags & InjectionFlags_DumpFile)) fmt::fprintLn(DumpFile, "Found Process '%ws'<id='%d'> but created HANDLE was invalid.", proc->name, proc->id);
                 return proc->pHandle != nullptr; 
             }
         }
@@ -98,7 +98,7 @@ auto gain_debug_privileges() -> bool {
 
     if( !OpenProcessToken(curr_process, TOKEN_ADJUST_PRIVILEGES, &token_handle)) {
         
-        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(__DEFAULT_DUMP_FILE, "Couldn't Open Tokens with HANDLE 0x%p.", curr_process);
+        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "Couldn't Open Tokens with HANDLE 0x%p.", curr_process);
         CloseHandle(curr_process); // Prevent memleak
         return false;
     }
@@ -106,7 +106,7 @@ auto gain_debug_privileges() -> bool {
     if( Flags & InjectionFlags_Verbose) printf("Looking for SE_DEBUG privileges\n");
     if( !LookupPrivilegeValue(nullptr, SE_DEBUG_NAME, &luid)) {
 
-        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(__DEFAULT_DUMP_FILE, "Couldn't find Privilege Value for SE_DEBUG with HANDLE 0x%p.", curr_process);
+        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "Couldn't find Privilege Value for SE_DEBUG with HANDLE 0x%p.", curr_process);
         
         CloseHandle(token_handle);  // Prevent memleak
         CloseHandle(curr_process);
@@ -123,7 +123,7 @@ auto gain_debug_privileges() -> bool {
 
     if( Flags & InjectionFlags_Verbose) printf("Closing Open Handles...\n");
 
-    if( !adj && Flags & InjectionFlags_DumpFile) fmt::fprintLn(__DEFAULT_DUMP_FILE, "Couldn't adjust Token Privileges. PROCESS HANDLE: 0x%p, TOKEN HANDLE: 0x%p.", curr_process, token_handle);
+    if( !adj && Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "Couldn't adjust Token Privileges. PROCESS HANDLE: 0x%p, TOKEN HANDLE: 0x%p.", curr_process, token_handle);
 
     if( token_handle) {
 
@@ -154,7 +154,7 @@ auto inject_loadlibrary(Process_t *proc, wchar_t *path) -> bool {
 
     if( !dllPathAddress) {
         
-        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(__DEFAULT_DUMP_FILE, "Couldn't allocate memory for the path to the DLL.");
+        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "Couldn't allocate memory for the path to the DLL.");
         release_memory(proc->pHandle, nullptr);
         return false;
     }
@@ -163,7 +163,7 @@ auto inject_loadlibrary(Process_t *proc, wchar_t *path) -> bool {
 
     if( !WriteProcessMemory(proc->pHandle, dllPathAddress, path, szPath, nullptr)) {
 
-        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(__DEFAULT_DUMP_FILE, "Failed to write the path to the Dll (%ws) to memory at address 0x%p.", path, dllPathAddress);
+        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "Failed to write the path to the Dll (%ws) to memory at address 0x%p.", path, dllPathAddress);
         release_memory(proc->pHandle, dllPathAddress);
         return false;
     }
@@ -179,7 +179,7 @@ auto inject_loadlibrary(Process_t *proc, wchar_t *path) -> bool {
                                        nullptr);
     if( !remote_thread) {
 
-        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(__DEFAULT_DUMP_FILE, "Failed to create a Remote Thread to the process :: '%ws'<HANDLE='0x%p', id='%d'> at memory address 0x%p.", proc->name, proc->pHandle, proc->id, dllPathAddress);
+        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "Failed to create a Remote Thread to the process :: '%ws'<HANDLE='0x%p', id='%d'> at memory address 0x%p.", proc->name, proc->pHandle, proc->id, dllPathAddress);
 
         release_memory(proc->pHandle, dllPathAddress);
         return false;
@@ -244,9 +244,6 @@ auto wmain(int argc, wchar_t *argv[]) -> int {
 
     for( auto i = 1; i < argc; ++i) {
 
-        // @debug
-        printf("arg%d = %ws\n", i, argv[i]);
-
         if(wcscmp(argv[i], L"-v") == 0) {
             
             Flags |= InjectionFlags_Verbose;
@@ -306,6 +303,8 @@ auto wmain(int argc, wchar_t *argv[]) -> int {
     Process_t proc = {0};
     wchar_t dll_path[MAX_PATH] = { 0 };
 
+    if( Flags & InjectionFlags_DumpFile) DumpFile.open(__DEFAULT_DUMP_FILE, std::ios::out | std::ios::app);
+
     {
         //@unsafe This is potentially unsafe
         auto tDLL      = (dll_idx != 0)  ? argv[dll_idx]  : __DEFAULT_DLL;
@@ -319,7 +318,7 @@ auto wmain(int argc, wchar_t *argv[]) -> int {
 
         if( Flags & InjectionFlags_Experimental) {
 			
-            if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(__DEFAULT_DUMP_FILE, "Using experimental C++ features.");
+            if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "Using experimental C++ features.");
 
 			using namespace std::experimental::filesystem;
 
@@ -332,39 +331,42 @@ auto wmain(int argc, wchar_t *argv[]) -> int {
     printf("DLL Complete Path: %ws\nTarget Process: %ws\n", dll_path, proc.name);
 
     if( Flags & InjectionFlags_Verbose) printf("Attempting to gain debug Privileges...\n");
-    if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(__DEFAULT_DUMP_FILE, "DLL Complete Path: %ws\nTarget Process: %ws\nAttempting to gain Debug Privileges...", dll_path, proc.name);
+    if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "DLL Complete Path: %ws\nTarget Process: %ws\nAttempting to gain Debug Privileges...", dll_path, proc.name);
 
     if( !gain_debug_privileges()) {
 
         printf("ERROR: Could not obtain debug privileges.");
-        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(__DEFAULT_DUMP_FILE, "ERROR: Could not obtain debug privileges.");
+        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "ERROR: Could not obtain debug privileges.");
 		exit(ERROR_DEBUG_PRIVILEGES_MISSING);
     }
 
     if( !file_exists(dll_path)) {
 
 		printf("File %ws does not exist.\n", dll_path);
-        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(__DEFAULT_DUMP_FILE, "ERROR: File %ws does not exist.", dll_path);
+        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "ERROR: File %ws does not exist.", dll_path);
         exit(ERROR_DLL_INVALID);
     }
 
     if(!validate_process(&proc)) {
 
 		printf("Process %ws could not be validated. Is it running?\n", proc.name);
-        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(__DEFAULT_DUMP_FILE, "ERROR: Process %ws could not be validated.", proc.name);
+        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "ERROR: Process %ws could not be validated.", proc.name);
         exit(ERROR_PROCESS_INVALID);
     }
 
     if( Flags & InjectionFlags_Verbose) printf("Injecting...\n");
-    if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(__DEFAULT_DUMP_FILE, "Injecting %ws to target process<%ws, %d>.", dll_path, proc.name, proc.id);
+    if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "Injecting %ws to target process<%ws, %d>.", dll_path, proc.name, proc.id);
 
     if( !inject_loadlibrary(&proc, dll_path)) {
 
 		printf("[LoadLibrary]: Injection of %ws to process %ws with id %d could not be completed.\n", dll_path, proc.name, proc.id);
-        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(__DEFAULT_DUMP_FILE, "ERROR: Injection of %ws to target process<%ws, %d> failed.", dll_path, proc.name, proc.id);        
+        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "ERROR: Injection of %ws to target process<%ws, %d> failed.", dll_path, proc.name, proc.id);        
         exit(ERROR_FAILED_INJECTION);
     }
 
     printf("DLL: %ws Successfully Injected to Process<%ws, %d>.\n", dll_path, proc.name, proc.id);
+
+    if(DumpFile.is_open()) DumpFile.close();    // Avoid memleak
+    
     return STATUS_OK;
 }
