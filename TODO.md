@@ -1,8 +1,9 @@
 
+ATTENTION: REMOVE _DEFAULT_ testing values from the definitions when committing.
 
 # TODO
 
-- REMOVE _DEFAULT_ values from the definitions when committing.
+- Manual Mapping
 
 ## NEXT UPDATE
 

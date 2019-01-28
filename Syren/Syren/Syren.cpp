@@ -135,7 +135,7 @@ auto gain_debug_privileges() -> bool {
     return adj;
 }
 
-auto inject_loadlibrary(Process_t *proc, wchar_t *path) -> bool {
+auto injectLoadlibrary(Process_t *proc, wchar_t *path) -> bool {
 
     // Lower Scope Lambda to fix potential memory leaks when leaving HANDLEs open
     auto release_memory = [](HANDLE handle, LPVOID addressOfAlloc) -> void {
@@ -147,24 +147,24 @@ auto inject_loadlibrary(Process_t *proc, wchar_t *path) -> bool {
     HANDLE remote_thread = {nullptr};
     HANDLE *proc_handle = &(proc->pHandle);
     DWORD exit_code = 0;
-    size_t szPath = (wcslen(path) + 1) * sizeof(wchar_t *);
+    size_t sz_path = (wcslen(path) + 1) * sizeof(wchar_t *);
 
     if( Flags & InjectionFlags_Verbose) printf("Allocating space for the DLL Path...\n");
-    auto dllPathAddress = VirtualAllocEx(proc->pHandle, nullptr, szPath, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    auto dllpath_address = VirtualAllocEx(proc->pHandle, nullptr, sz_path, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
-    if( !dllPathAddress) {
+    if( !dllpath_address) {
         
         if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "Couldn't allocate memory for the path to the DLL.");
         release_memory(proc->pHandle, nullptr);
         return false;
     }
 
-    if( Flags & InjectionFlags_Verbose) printf("Successfully allocated dll path at 0x%p\nWritting process memory...", dllPathAddress);
+    if( Flags & InjectionFlags_Verbose) printf("Successfully allocated dll path at 0x%p\nWritting process memory...", dllpath_address);
 
-    if( !WriteProcessMemory(proc->pHandle, dllPathAddress, path, szPath, nullptr)) {
+    if( !WriteProcessMemory(proc->pHandle, dllpath_address, path, sz_path, nullptr)) {
 
-        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "Failed to write the path to the Dll (%ws) to memory at address 0x%p.", path, dllPathAddress);
-        release_memory(proc->pHandle, dllPathAddress);
+        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "Failed to write the path to the Dll (%ws) to memory at address 0x%p.", path, dllpath_address);
+        release_memory(proc->pHandle, dllpath_address);
         return false;
     }
 
@@ -174,14 +174,14 @@ auto inject_loadlibrary(Process_t *proc, wchar_t *path) -> bool {
                                        nullptr,
                                        0,
                                        (LPTHREAD_START_ROUTINE)(LoadLibrary),
-                                       dllPathAddress,
+                                       dllpath_address,
                                        0,
                                        nullptr);
     if( !remote_thread) {
 
-        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "Failed to create a Remote Thread to the process :: '%ws'<HANDLE='0x%p', id='%d'> at memory address 0x%p.", proc->name, proc->pHandle, proc->id, dllPathAddress);
+        if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "Failed to create a Remote Thread to the process :: '%ws'<HANDLE='0x%p', id='%d'> at memory address 0x%p.", proc->name, proc->pHandle, proc->id, dllpath_address);
 
-        release_memory(proc->pHandle, dllPathAddress);
+        release_memory(proc->pHandle, dllpath_address);
         return false;
     }
 
@@ -199,7 +199,7 @@ auto inject_loadlibrary(Process_t *proc, wchar_t *path) -> bool {
 
         CloseHandle(remote_thread);
     }
-    if( dllPathAddress) {
+    if( dllpath_address) {
 
         // ? Do we really want to close proc->pHandle here?
         // Here are my thoughts: I am considering having an option to inject multiple DLLs in the future.
@@ -207,8 +207,8 @@ auto inject_loadlibrary(Process_t *proc, wchar_t *path) -> bool {
         // multiple times.
         // Until that is done/reconsidered, I will close the handle to prevent further memleaks.
         // -Kiwii
-        // VirtualFreeEx(proc->pHandle, dllPathAddress, 0, MEM_RELEASE);
-        release_memory(proc->pHandle, dllPathAddress);
+        // VirtualFreeEx(proc->pHandle, dllpath_address, 0, MEM_RELEASE);
+        release_memory(proc->pHandle, dllpath_address);
     }
 
     if( Flags & InjectionFlags_Verbose) printf("Done!\n");    
@@ -267,7 +267,7 @@ auto wmain(int argc, wchar_t *argv[]) -> int {
                     if(((wcscmp(argv[i], L"-d") == 0) || (wcscmp(argv[i], L"--dll") == 0)) && (dll_idx == 0)) {
 
                         dll_idx = ++i;
-                        printf("arg%d = %ws\n", i, argv[i]);
+                        // printf("arg%d = %ws\n", i, argv[i]);
                         if(wcsncmp(argv[i], L"-", 1) == 0) {
 
                             throw fmt::error("Expected argument %i (%ws) to refer to a file's name but received a flag.", i, argv[i]);
@@ -276,7 +276,7 @@ auto wmain(int argc, wchar_t *argv[]) -> int {
                     else if(((wcscmp(argv[i], L"-p") == 0) || (wcscmp(argv[i], L"--process") == 0)) && (proc_idx == 0)) {
                         
                         proc_idx = ++i;
-                        printf("arg%d = %ws\n", i, argv[i]);
+                        // printf("arg%d = %ws\n", i, argv[i]);
                         if(wcsncmp(argv[i], L"-", 1) == 0) {
 
                             throw fmt::error("Expected argument %i (%ws) to refer to a process' executable but received a flag.", i, argv[i]);
@@ -307,8 +307,8 @@ auto wmain(int argc, wchar_t *argv[]) -> int {
 
     {
         //@unsafe This is potentially unsafe
-        auto tDLL      = (dll_idx != 0)  ? argv[dll_idx]  : __DEFAULT_DLL;
-        auto tPROCESS  = (proc_idx != 0) ? argv[proc_idx] : __DEFAULT_PROCESS;
+        auto tDLL     = (dll_idx != 0)  ? argv[dll_idx]  : __DEFAULT_DLL;
+        auto tPROCESS = (proc_idx != 0) ? argv[proc_idx] : __DEFAULT_PROCESS;
 
         if( Flags & InjectionFlags_Verbose) printf("DLL Selected: %ws\nProcess Selected: %ws\n", tDLL, tPROCESS);
 
@@ -357,7 +357,7 @@ auto wmain(int argc, wchar_t *argv[]) -> int {
     if( Flags & InjectionFlags_Verbose) printf("Injecting...\n");
     if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "Injecting %ws to target process<%ws, %d>.", dll_path, proc.name, proc.id);
 
-    if( !inject_loadlibrary(&proc, dll_path)) {
+    if( !injectLoadlibrary(&proc, dll_path)) {
 
 		printf("[LoadLibrary]: Injection of %ws to process %ws with id %d could not be completed.\n", dll_path, proc.name, proc.id);
         if( Flags & InjectionFlags_DumpFile) fmt::fprintLn(DumpFile, "ERROR: Injection of %ws to target process<%ws, %d> failed.", dll_path, proc.name, proc.id);        

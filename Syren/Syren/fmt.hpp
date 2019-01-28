@@ -81,7 +81,7 @@ namespace fmt {
 
     class error: std::exception {
 
-        char err_msg[2048]; // This buffer size should be more than enough
+        char m_errMsg[2048]; // This buffer size should be more than enough
     
     public:
     
@@ -89,13 +89,13 @@ namespace fmt {
 
             va_list va;
             va_start(va, fmt);
-            vsnprintf_s(err_msg, sizeof(err_msg), fmt, va);
+            vsnprintf_s(m_errMsg, sizeof(m_errMsg), fmt, va);
             va_end(va);
         }
 
         char const *what() const throw() {
 
-            return err_msg;
+            return m_errMsg;
         }
 
 	};
