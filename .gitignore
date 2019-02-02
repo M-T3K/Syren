@@ -2,11 +2,13 @@ syren-legacy/
 Syren/Output/
 Syren/x64
 Syren/Debug
+Syren/Release
 Syren/Syren/x64
 Syren/Syren/Release/
 Syren/Syren/Debug/
 Syren/DDllTest/x64
 Syren/DDllTest/Win32
+Syren/build
 .vs/
 .vscode/
 *.dll
