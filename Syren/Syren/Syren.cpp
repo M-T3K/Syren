@@ -216,21 +216,23 @@ auto injectLoadlibrary(Process_t *proc, wchar_t *path) -> bool {
     return exit_code != 0;
 }
 
+auto injectManualMap() -> bool;
+
 
 // Syren.exe [-h] dll.dll proc.exe 
 auto wmain(int argc, wchar_t *argv[]) -> int {
 
     printf("argc = %d\n", argc);
-    if(argc == 2 && (wcscmp(argv[1], L"-h") == 0)) {
+    if(argc == 2 && ((wcscmp(argv[1], L"-h") == 0) || (wcscmp(argv[1], L"--help") == 0))) {
 
         printf("USAGE: Syren.exe [-flags] [-d/--dll [name.dll]] [ -p/--process [ProcessExeFile]]\n");
         printf("List of [-flags]:\n");
-        printf("\t[-h]:     Prints helpful information about Syren and its usage.\n"); 
-        printf("\t[-e]:     Makes the program use experimental C++17/C++2a features. By default, Syren uses normal C++14 features.\n");          
-        printf("\t[-v]:     Prints additional information to the console whenever possible.\n");
-        printf("\t[-l]:     If using this option, Syren will log all information inside a log file. By default it is [Syren.log]. The Longer version is [--log].\n");          
-        printf("\t[-d]:     Identifies the next argument as the DLL to inject. The longer version is [--dll].\n");
-        printf("\t[-p]:     Identifies the next argument as the Target Process. The longer version is [--process].\n");
+        printf("\t[-h/--help]:             Prints helpful information about Syren and its usage.\n"); 
+        printf("\t[-e/--experimental]:     Makes the program use experimental C++17/C++2a features. By default, Syren uses normal C++14 features.\n");          
+        printf("\t[-v/--verbose]:          Prints additional information to the console whenever possible.\n");
+        printf("\t[-l/--log]:              If using this option, Syren will log all information inside a log file. By default it is [Syren.log]. The Longer version is [--log].\n");          
+        printf("\t[-d/--dll]:              Identifies the next argument as the DLL to inject. The longer version is [--dll].\n");
+        printf("\t[-p/--process]:          Identifies the next argument as the Target Process. The longer version is [--process].\n");
         exit(STATUS_OK);
     }
 
@@ -246,11 +248,11 @@ auto wmain(int argc, wchar_t *argv[]) -> int {
 
     for( auto i = 1; i < argc; ++i) {
 
-        if(wcscmp(argv[i], L"-v") == 0) {
+        if((wcscmp(argv[i], L"-v") == 0) || (wcscmp(argv[i], L"--verbose") == 0)) {
             
             Flags |= InjectionFlags_Verbose;
         }        
-        else if(wcscmp(argv[i], L"-e") == 0) {
+        else if((wcscmp(argv[i], L"-e") == 0) || (wcscmp(argv[i], L"--experimental") == 0)) {
 
             Flags |= InjectionFlags_Experimental;
         }

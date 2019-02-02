@@ -18,7 +18,7 @@ void mainThread() {
     while(testLoop) {
         writeln("Sleeping every second...");
 		if(GetAsyncKeyState(VK_DELETE)) {
-			writeln("[DLL_TEST]: <VK_DELETE> pressed. Exiting...")
+			writeln("[DLL_TEST]: <VK_DELETE> pressed. Exiting...");
 			testLoop = false;
 		}
         Sleep(1000); // Sleep Every Second

@@ -2,21 +2,72 @@
 
 ## Welcome to Syren.
 -------------------------------------------
-Syren is a CLI General Purpose Dynamic Link Library (Dll) Injector coded from scratch in C++. The Injector itself was written with DOD (Data Oriented Design) in mind. This means that there are very few objects involved. A UI might be added in the future once all of the main features of Syren-CLI are implemented.
+Syren is a CLI General Purpose Dynamic Link Library (Dll) Injector coded from scratch in C++. The Injector itself was written with DOD (Data Oriented Design) in mind. A UI might be added in the future once all of the main features of Syren-CLI are implemented.
 
 ## List of Features
 
 * Standard (Load Library) DLL Injection.
 * Support for a variety of command line arguments i.e. Help Message when calling **Syren.exe -h**.
+* Sample DLL written in D designed to fuzz Syren (and to teach myself D, of course).
 
-### High Priority Upcoming Features
+## Prerequesites
 
-* Manual Mapping of Dll.
+Ensure you have **git** installed. You can download it from [here](https://git-scm.com/downloads). Syren is currently a Windows only too, so you should get Git for Windows. I also recommend [CMDER](http://cmder.net/). Then, make sure you have the [Latest version of Microsoft's Visual Studio](https://visualstudio.microsoft.com/) installed, with at least the following Workloads enabled: 
+
+- Desktop development with C++
+- Universal Windows Platform development
+
+I also recommend the following:
+
+- .NET desktop development
+- Linux development with C++
+- .NET Core cross-platform developent
+- Game development with C++
+
+It is important to have the following Individual Components too:
+
+- Windows Universal CRT SDK
+- C++/CLI support
+
+Make sure you are installed Visual Studio and not Visual Studio Code (though I also recommend that you install that one, it is not required). Then you need to install [Visual D](http://rainers.github.io/visuald/visuald/StartPage.html). If you use Visual Studio Code, I also recommend a D extension. The one I use is [code-d](https://github.com/Pure-D/code-d).
+
+## Downloading and Compiling Syren
+
+Using CMDER:
+`λ cd go\to\directory\` to go to the directory you want.
+
+Then:
+
+`λ git clone https://github.com/M-T3K/Syren.git`
+
+`λ cd Syren\Syren` to go to the location of the Syren Solution. From There:
+
+`λ start Syren.sln` to open the Syren Solution in Visual Studio.
+
+`λ code .` if you are using Visual Studio Code to open the folder or `λ code-insiders .` if you are using the nightly VSCode build.
+
+From within Visual Studio, you can right click the solution and click **Build Solution** or press `Ctrl. + Shift + B` to compile Syren. Make sure you are on Release Mode, and that you have chosen the right version.
+
+## Usage
+
+First, make sure that you've compiled the right version of Syren, and that your DLL and the target process are the same version too (x86/x64). For these instructions, I will be using the x86 version of Syren and DDllTest.dll. If you would like to use the x64 version, just write 'x64' instead of 'x86'. Then, from Syren's Directory in a CMD/CMDER/PowerShell/...:
+* `λ Syrenx86.exe` to run Syren using default settings. You need to configure it manually before compilation by changing the `__DEFAULT_DLL` and `__DEFAULT_PROCESS` preprocessor instructions.
+* `λ Syrenx86.exe -h` will print help and additional information about each individual flag.
+* `λ Syrenx86.exe [flags] -d DDllTestx86.dll -p my_process.exe` will inject `DDllTestx86.dll` into `my_process.exe`. The long version of -d and -p are --dll and --process respectively. [flags] represents any flags you may want to specify. These include:
+    * '-v/--verbose': for extra information printed to the command line.
+    * '-l/--log': To log information on a file. You may or may not include a filename as argument. By default, it is `Syren.log`.
+    * '-e/--experimental': To use Experimental C++ features.
+* Example: `λ Syrenx86.exe -v --log -e -d DDllTestx86.dll -p my_process.exe` will inject `DDllTestx86.dll` to `my_process.exe`, while documenting the entire process to the command line (-v), logging things to a file called `Syren.log` (--log) (since no other file was specified), and use experimental C++ features during the process of injection (-e).
 
 ## Upcoming Features
 
 * More advanced Injection techniques.
 * SyrenUI - An Alternative version with a cleaner User Interface, probably using Qt, or something else.
+
+### High Priority Upcoming Features
+
+* Manual Mapping of Dll.
+
 
 ## F.A.Q.
 
