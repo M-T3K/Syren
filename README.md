@@ -1,7 +1,7 @@
 # Syren
 
 ## Welcome to Syren.
--------------------------------------------
+
 Syren is a CLI General Purpose Dynamic Link Library (Dll) Injector coded from scratch in C++. The Injector itself was written with DOD (Data Oriented Design) in mind. A UI might be added in the future once all of the main features of Syren-CLI are implemented.
 
 ## List of Features
@@ -33,20 +33,21 @@ Make sure you are installed Visual Studio and not Visual Studio Code (though I a
 
 ## Downloading and Compiling Syren
 
-Using CMDER:
 `λ cd go\to\directory\` to go to the directory you want.
 
 Then:
 
 `λ git clone https://github.com/M-T3K/Syren.git`
 
-`λ cd Syren\Syren` to go to the location of the Syren Solution. From There:
+`λ cd Syren\Syren` to go to the location of the Syren Solution. 
+
+From There:
 
 `λ start Syren.sln` to open the Syren Solution in Visual Studio.
 
 `λ code .` if you are using Visual Studio Code to open the folder or `λ code-insiders .` if you are using the nightly VSCode build.
 
-From within Visual Studio, you can right click the solution and click **Build Solution** or press `Ctrl. + Shift + B` to compile Syren. Make sure you are on Release Mode, and that you have chosen the right version.
+From within Visual Studio, you can right click the solution and click **Build Solution** or press `Ctrl. + Shift + B` to compile Syren. Make sure you are on Release Mode, and that you have chosen the right version. The Folders `\Output\` and `\build\` should be created, and 
 
 ## Usage
 
@@ -54,10 +55,12 @@ First, make sure that you've compiled the right version of Syren, and that your 
 * `λ Syrenx86.exe` to run Syren using default settings. You need to configure it manually before compilation by changing the `__DEFAULT_DLL` and `__DEFAULT_PROCESS` preprocessor instructions.
 * `λ Syrenx86.exe -h` will print help and additional information about each individual flag.
 * `λ Syrenx86.exe [flags] -d DDllTestx86.dll -p my_process.exe` will inject `DDllTestx86.dll` into `my_process.exe`. The long version of -d and -p are --dll and --process respectively. [flags] represents any flags you may want to specify. These include:
-    * '-v/--verbose': for extra information printed to the command line.
-    * '-l/--log': To log information on a file. You may or may not include a filename as argument. By default, it is `Syren.log`.
-    * '-e/--experimental': To use Experimental C++ features.
-* Example: `λ Syrenx86.exe -v --log -e -d DDllTestx86.dll -p my_process.exe` will inject `DDllTestx86.dll` to `my_process.exe`, while documenting the entire process to the command line (-v), logging things to a file called `Syren.log` (--log) (since no other file was specified), and use experimental C++ features during the process of injection (-e).
+    * **-v/--verbose**: for extra information printed to the command line.
+    * **-l/--log**: To log information on a file. You may or may not include a filename as argument. By default, it is `Syren.log`.
+    * **-e/--experimental**: To use Experimental C++ features.
+* Example: 
+  
+  `λ Syrenx86.exe -v --log -e -d DDllTestx86.dll -p my_process.exe` will inject `DDllTestx86.dll` to `my_process.exe`, while documenting the entire process to the command line (-v), logging things to a file called `Syren.log` (--log) (since no other file was specified), and use experimental C++ features during the process of injection (-e).
 
 ## Upcoming Features
 
@@ -73,7 +76,7 @@ First, make sure that you've compiled the right version of Syren, and that your 
 
 **Q**: Why do you use Trailing Return Type (TRT) ?
 
-**A**: TRT is a better alternative to traditional C/C++ function declaration syntax because it lets you to have a single, more consistent syntax in your projects, specially if you use Lambdas (Since they use this syntax too). Then, all the function names will start at exactly the same place (5th Character). **However**, this should only be done in projects over which you have full control; since most projects use the old syntax as a convention and it would be inappropriate to change it. Overall, you should stick to one of these syntaxes only. Also, [SFINAE](https://en.cppreference.com/w/cpp/language/sfinae). Therefore, TRT improves your code readability when properly used.
+**A**: TRT is a better alternative to traditional C/C++ function declaration syntax because it lets you have a single, more consistent syntax in your projects, specially if you use Lambdas (Since they use this syntax too). Also, all the function names will start at exactly the same place (5th Character). **However**, this should only be done in projects over which you have full control; since most projects use the old syntax as a convention and it would be inappropriate to change it. Overall, you should stick to one of these syntaxes only. Also, [SFINAE](https://en.cppreference.com/w/cpp/language/sfinae). Therefore, TRT improves your code readability when properly used.
 
 ---
 
