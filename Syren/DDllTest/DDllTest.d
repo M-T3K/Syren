@@ -17,15 +17,20 @@ void mainThread() {
 	writeln("Just Teasing the Syren ;)...");
     while(testLoop) {
         writeln("Sleeping every second...");
+		if(GetAsyncKeyState(VK_DELETE)) {
+			writeln("[DLL_TEST]: <VK_DELETE> pressed. Exiting...")
+			testLoop = false;
+		}
         Sleep(1000); // Sleep Every Second
 	}
 
+	FreeLibraryAndExitThread(g_hInst, 0);
 }
 
 extern (Windows)
 BOOL DllMain(HINSTANCE hInstance, ULONG ulReason, LPVOID pvReserved) {
 
-	switch(ulReason) {
+	final switch(ulReason) {
 		
 		case DLL_PROCESS_ATTACH:
 		{
